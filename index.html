@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Imperfect For You</title>
+
+  <style>
+    :root{
+      --bg: url("images/ariana.png");
+      --glass: rgba(255,255,255,.14);
+      --glass-2: rgba(255,255,255,.08);
+      --stroke: rgba(255,255,255,.22);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.7);
+      --shadow: 0 20px 60px rgba(0,0,0,.55);
+      --radius: 22px;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      min-height:100svh;
+      overflow:hidden;
+      color:var(--text);
+
+      background-image: var(--bg);
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+    }
+
+    /* Soft cinematic overlay */
+    .overlay{
+      position:fixed;
+      inset:0;
+      background:
+        radial-gradient(900px 520px at 20% 20%, rgba(255,255,255,.10), transparent 60%),
+        radial-gradient(900px 520px at 80% 20%, rgba(255,255,255,.08), transparent 60%),
+        linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.65));
+      pointer-events:none;
+    }
+
+    /* Main hero card */
+    .wrap{
+      position:relative;
+      z-index:2;
+      height:100svh;
+      display:grid;
+      place-items:center;
+      padding:24px;
+    }
+
+    .hero{
+      width:min(920px, 100%);
+      padding:28px;
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, var(--glass), var(--glass-2));
+      border:1px solid var(--stroke);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      overflow:hidden;
+      position:relative;
+    }
+
+    .hero::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background: radial-gradient(600px 240px at 10% 0%, rgba(255,255,255,.18), transparent 60%);
+      pointer-events:none;
+    }
+
+    .top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      position:relative;
+    }
+
+    .title{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+
+    h1{
+      margin:0;
+      font-size: clamp(28px, 4vw, 44px);
+      letter-spacing:-0.02em;
+      line-height:1.05;
+    }
+
+    .sub{
+      margin:0;
+      color:var(--muted);
+      font-size: 14px;
+    }
+
+    .pill{
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      padding:10px 12px;
+      border-radius: 999px;
+      border:1px solid var(--stroke);
+      background: rgba(0,0,0,.22);
+      color: var(--muted);
+      font-size: 13px;
+      white-space:nowrap;
+    }
+
+    .actions{
+      margin-top: 5%;
+      width: 10%;
+    }
+
+    button{
+      appearance:none;
+      border:0;
+      cursor:pointer;
+      font-weight:600;
+      letter-spacing:.01em;
+      transition: transform .12s ease, filter .12s ease, background .2s ease;
+    }
+
+    .btn{
+      padding:12px 16px;
+      border-radius: 14px;
+      color: rgba(255,255,255,.95);
+      background: rgba(255,255,255,.16);
+      border:1px solid var(--stroke);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .btn:hover{ filter: brightness(1.08); }
+    .btn:active{ transform: translateY(1px) scale(.99); }
+
+    .btn-primary{
+      background: linear-gradient(135deg, rgba(255,255,255,.22), rgba(255,255,255,.12));
+    }
+
+    .hint{
+      margin-top:18px;
+      color: var(--muted);
+      font-size: 13px;
+      position:relative;
+    }
+
+    /* Modal */
+    .modal-backdrop{
+      position:fixed;
+      inset:0;
+      display:none;
+      z-index:10;
+      background: rgba(0,0,0,.55);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding:24px;
+    }
+
+    .modal-backdrop.show{
+      display:grid;
+      place-items:center;
+      animation: fadeIn .18s ease;
+    }
+
+    @keyframes fadeIn{
+      from{ opacity:0; }
+      to{ opacity:1; }
+    }
+
+    .modal{
+      width:min(720px, 100%);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.08));
+      border:1px solid var(--stroke);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      transform: translateY(8px) scale(.985);
+      animation: pop .18s ease forwards;
+    }
+
+    @keyframes pop{
+      to{ transform: translateY(0) scale(1); }
+    }
+
+    .modal-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:16px 18px;
+      border-bottom: 1px solid rgba(255,255,255,.12);
+    }
+
+    .modal-header strong{
+      font-size: 14px;
+      color: rgba(255,255,255,.85);
+    }
+
+    .close{
+      width:40px;
+      height:40px;
+      border-radius: 12px;
+      background: rgba(0,0,0,.25);
+      border:1px solid rgba(255,255,255,.14);
+      color: rgba(255,255,255,.88);
+      display:grid;
+      place-items:center;
+      font-size:18px;
+      line-height:0;
+    }
+
+    .modal-body{
+      padding: 22px 18px 18px;
+    }
+
+    .line{
+      font-size: clamp(18px, 2.4vw, 26px);
+      line-height: 1.35;
+      margin:0;
+      letter-spacing: -.01em;
+      text-shadow: 0 10px 30px rgba(0,0,0,.25);
+    }
+
+    .progress{
+      margin-top:14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .bar{
+      flex:1;
+      height:10px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.28);
+      border: 1px solid rgba(255,255,255,.10);
+      overflow:hidden;
+    }
+
+    .bar > div{
+      height:100%;
+      width:0%;
+      background: rgba(255,255,255,.35);
+      border-radius: 999px;
+      transition: width .22s ease;
+    }
+
+    .modal-footer{
+      padding: 14px 18px 18px;
+      display:flex;
+      gap:10px;
+      justify-content:space-between;
+      align-items:center;
+      border-top: 1px solid rgba(255,255,255,.12);
+    }
+
+    .nav{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .btn-ghost{
+      background: rgba(0,0,0,.20);
+      border:1px solid rgba(255,255,255,.14);
+      color: rgba(255,255,255,.9);
+      padding: 12px 14px;
+      border-radius: 14px;
+    }
+
+    .btn-ghost:disabled{
+      opacity:.45;
+      cursor:not-allowed;
+      filter:none;
+    }
+
+    .toggle{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      color: var(--muted);
+      font-size: 13px;
+      user-select:none;
+    }
+
+    .switch{
+      width:44px;
+      height:26px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.28);
+      border:1px solid rgba(255,255,255,.14);
+      position:relative;
+      cursor:pointer;
+    }
+
+    .knob{
+      width:20px;
+      height:20px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.78);
+      position:absolute;
+      top:50%;
+      left:4px;
+      transform: translateY(-50%);
+      transition: left .18s ease;
+    }
+
+    .switch.on .knob{ left: 20px; }
+
+    .sr-only{
+      position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+      overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+    }
+
+    @media (max-width: 520px){
+      .modal-footer{ flex-direction:column; align-items:stretch; }
+      .toggle{ justify-content:space-between; }
+      .nav{ width:100%; justify-content:space-between; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="overlay"></div>
+
+  <main class="wrap">
+    <section class="hero">
+      <div class="top">
+        <div class="title">
+          <h1>Imperfect For You</h1>
+          <p class="sub">Tap start, then use arrow keys (or buttons) to move line by line.</p>
+        </div>
+
+        <div class="actions">
+          <!-- <span class="pill">✨ Modern popup • Smooth • Responsive</span> -->
+          <button class="btn btn-primary" type="button" id="startBtn">Start</button>
+        </div>
+      </div>
+
+      <p class="hint">Tip: Press <b>Esc</b> to close • <b>Space</b> to next • <b>←/→</b> to navigate.</p>
+    </section>
+  </main>
+
+  <!-- Modal -->
+  <div class="modal-backdrop" id="backdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-header">
+        <strong id="modalTitle">Now playing: lines</strong>
+        <button class="close" type="button" id="closeBtn" aria-label="Close">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <p class="line" id="lineText"></p>
+
+        <div class="progress">
+          <span id="counter">1 / 1</span>
+          <div class="bar" aria-hidden="true"><div id="barFill"></div></div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <div class="nav">
+          <button class="btn-ghost" type="button" id="prevBtn">◀ Prev</button>
+          <button class="btn" type="button" id="nextBtn">Next ▶</button>
+        </div>
+
+        <div class="toggle">
+          <span>Autoplay</span>
+          <button class="switch" type="button" id="autoSwitch" aria-label="Toggle autoplay">
+            <span class="sr-only">Toggle autoplay</span>
+            <span class="knob"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const messages = [
+        "My boy, come take my hand",
+        "Throw your guitar and your clothes in the back seat",
+        "My love, they don't understand",
+        "But I'll hold your hurt in the box here beside me",
+        "How could we know",
+        "We'd rearrange all the cosmos? Mm",
+        "We crashed and we burned",
+        "Now I just can't go where you don't go",
+        "And usually I'm",
+        "Fucked up, anxious, too much",
+        "But I'll love you like you need me to",
+        "Imperfect for you",
+        "Messy, completely distressed",
+        "But I'm not like that since I met you",
+        "Imperfect for you",
+        "Let's go tonight",
+        "'Cause there's just a few seconds left 'til tomorrow",
+        "We have all that we need",
+        "Let's leave our baggage and wine at the table (ooh), mm",
+        "How could we know",
+        "That this was a happy disaster?",
+        "I'm glad we crashed and burned",
+        "I'll never forget when you told me",
+        "You said, Usually, I'm",
+        "Fucked up, anxious, too much",
+        "But I'll love you like you need me to",
+        "Imperfect for you",
+        "Messy, completely distressed",
+        "But I'm not like that since I met you",
+        "How could we know",
+        "We'd make the bad stuff delightful? Mm",
+        "I'm glad we crashed and burned",
+        "I know we'll be there for each other",
+        "When we're feeling",
+        "Fucked up, anxious, too much",
+        "But I'll love you like you need me to",
+        "Imperfect for you",
+        "Messy, completely distressed",
+        "But I'm not like that since I met you",
+        "Imperfect for you",
+        "Fucked up, anxious, too much",
+        "Like you need me to",
+        "Imperfect for you",
+        "Messy, completely distressed",
+        "Not like that since I met you",
+        "Imperfect for you"
+    ];
+
+    let index = 0;
+    let autoplay = false;
+    let timer = null;
+
+    const startBtn = document.getElementById("startBtn");
+    const backdrop = document.getElementById("backdrop");
+    const lineText = document.getElementById("lineText");
+    const counter = document.getElementById("counter");
+    const barFill = document.getElementById("barFill");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const closeBtn = document.getElementById("closeBtn");
+    const autoSwitch = document.getElementById("autoSwitch");
+
+    function openModal() {
+      backdrop.classList.add("show");
+      backdrop.setAttribute("aria-hidden", "false");
+      render();
+    }
+
+    function closeModal() {
+      backdrop.classList.remove("show");
+      backdrop.setAttribute("aria-hidden", "true");
+      stopAutoplay();
+    }
+
+    function render() {
+      const total = messages.length || 1;
+      const safeIndex = Math.min(Math.max(index, 0), total - 1);
+      index = safeIndex;
+
+      lineText.textContent = messages[index] || "Add your lines into the messages array.";
+      counter.textContent = `${index + 1} / ${total}`;
+      barFill.style.width = `${((index + 1) / total) * 100}%`;
+
+      prevBtn.disabled = index === 0;
+      nextBtn.textContent = (index === total - 1) ? "Finish ✓" : "Next ▶";
+    }
+
+    function next() {
+      if (!messages.length) return;
+      if (index < messages.length - 1) {
+        index++;
+        render();
+      } else {
+        closeModal();
+      }
+    }
+
+    function prev() {
+      if (!messages.length) return;
+      if (index > 0) {
+        index--;
+        render();
+      }
+    }
+
+    function start() {
+      index = 0;
+      openModal();
+    }
+
+    function startAutoplay() {
+      autoplay = true;
+      autoSwitch.classList.add("on");
+      timer = setInterval(() => {
+        // stop if closed
+        if (!backdrop.classList.contains("show")) return;
+        // move next, stop at end
+        if (index < messages.length - 1) {
+          index++;
+          render();
+        } else {
+          closeModal();
+        }
+      }, 1500); // speed here
+    }
+
+    function stopAutoplay() {
+      autoplay = false;
+      autoSwitch.classList.remove("on");
+      if (timer) clearInterval(timer);
+      timer = null;
+    }
+
+    function toggleAutoplay() {
+      if (autoplay) stopAutoplay();
+      else startAutoplay();
+    }
+
+    // Events
+    startBtn.addEventListener("click", start);
+    nextBtn.addEventListener("click", next);
+    prevBtn.addEventListener("click", prev);
+    closeBtn.addEventListener("click", closeModal);
+    autoSwitch.addEventListener("click", toggleAutoplay);
+
+    // Close if click outside modal
+    backdrop.addEventListener("click", (e) => {
+      if (e.target === backdrop) closeModal();
+    });
+
+    // Keyboard shortcuts
+    window.addEventListener("keydown", (e) => {
+      if (!backdrop.classList.contains("show")) return;
+
+      if (e.key === "Escape") closeModal();
+      if (e.key === "ArrowRight") next();
+      if (e.key === "ArrowLeft") prev();
+      if (e.key === " ") { e.preventDefault(); next(); }
+    });
+  </script>
+</body>
+</html>
